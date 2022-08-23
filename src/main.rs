@@ -6,7 +6,6 @@ mod error;
 mod ui;
 mod item;
 
-
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)

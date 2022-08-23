@@ -1,11 +1,10 @@
-use std::collections::HashMap;
-
 use crate::prelude::*;
 
 mod config;
 mod items;
 mod event;
 mod physics;
+mod pickup;
 
 pub use items::Items;
 pub use event::ItemEvent;
@@ -18,7 +17,11 @@ impl Plugin for ItemPlugin {
         app.init_resource::<config::ItemConfig>();
         app.add_system(spawn_item);
         app.add_system(event::move_down);
+        app.insert_resource(physics::Seleced(None));
         app.add_system(physics::click_check);
+        app.add_system(physics::item_hit);
+        app.add_system(pickup::move_pickup_item);
+        app.add_system(pickup::set_selected);
     }
 }
 
@@ -40,11 +43,12 @@ fn spawn_item(
     mut commands: Commands,
     icons: Res<crate::ui::UiIcons>,
     items: Res<Items>,
-    mut events: EventReader<ItemEvent>,
+    mut set: ParamSet<(EventReader<ItemEvent>, EventWriter<ItemEvent>)>,
     item_settings: Res<config::ItemConfig>,
     window: Res<WindowDescriptor>,
 ){
-    for event in events.iter() {
+    let mut send = Vec::new();
+    for event in set.p0().iter() {
         match event {
             ItemEvent::Spawn(id) => {
                 use rand::Rng;
@@ -53,7 +57,7 @@ fn spawn_item(
                 let height = window.height / 2.;
                 let x = rng.gen_range(-width..width);
                 let y = rng.gen_range(-height..height);
-                commands.spawn_bundle(
+                let s_id = commands.spawn_bundle(
                     SpriteBundle {
                         sprite: Sprite {custom_size: Some(item_settings.frame_size), ..Default::default()},
                         texture: icons.get("item_frame"),
@@ -69,10 +73,12 @@ fn spawn_item(
                     });
                 })
                 .insert(*id)
-                .insert(physics::Size(item_settings.frame_size));
+                .insert(physics::Size(item_settings.frame_size))
+                .id();
+                send.push(s_id);
             },
             ItemEvent::SpawnAt(id, loc) => {
-                commands.spawn_bundle(
+                let s_id = commands.spawn_bundle(
                     SpriteBundle {
                         sprite: Sprite {custom_size: Some(item_settings.frame_size), ..Default::default()},
                         texture: icons.get("item_frame"),
@@ -83,13 +89,19 @@ fn spawn_item(
                 .with_children(|p| {
                     p.spawn_bundle(SpriteBundle{
                         sprite: Sprite {custom_size: Some(item_settings.icon_size), ..Default::default()},
-                        texture: items.get(id).icon.clone(),
+                        texture: items.get(&id).icon.clone(),
                         ..Default::default()
                     });
                 })
-                .insert(*id);
-            }
+                .insert(*id)
+                .id();
+                send.push(s_id);
+            },
+            _ => {},
         }
+    }
+    for id in send {
+        set.p1().send(ItemEvent::Spawned(id));
     }
 }
 
