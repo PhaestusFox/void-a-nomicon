@@ -1,0 +1,11 @@
+name: "Bevy"
+icon: "icon.png"
+{next}
+name: "App"
+icon: "ui/book.png"
+{next}
+name: "DefaultPlugins"
+icon: "ui/board.png"
+{next}
+name: "Totally a game"
+icon: "ui/frame_violet.png"

@@ -5,6 +5,7 @@ mod one_offs;
 mod error;
 mod ui;
 mod item;
+mod recipies;
 
 fn main() {
     App::new()
@@ -16,6 +17,7 @@ fn main() {
         .add_plugin(one_offs::OneOffPlugin)
         .add_plugin(ui::UiPlugin)
         .add_plugin(item::ItemPlugin)
+        .add_plugin(recipies::RecipiePlugin)
         .insert_resource(WindowDescriptor{
             width: 1280.,
             height: 720.,
@@ -23,7 +25,7 @@ fn main() {
         })
         .add_startup_system(setup)
         
-        .add_startup_system(load_test_item)
+        //.add_startup_system(load_test_item)
         .add_system(spawn_test_item)
 
         .run();
@@ -42,18 +44,13 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 #[derive(Component)]
 pub struct MainCam;
 
-fn load_test_item(
-    mut items: ResMut<item::Items>,
-    asset_server: Res<AssetServer>,
-){
-    items.load("./assets/item_data/test.itm", &asset_server).unwrap();
-}
-
 fn spawn_test_item(
    mut events: EventWriter<item::ItemEvent>,
    input: Res<Input<KeyCode>>,
 ){
     if input.just_pressed(KeyCode::Space) {
-        events.send(item::ItemEvent::Spawn(item::ItemID::from("test")))
+        events.send(item::ItemEvent::Spawn(item::ItemID::from("Test Item")))
+    } else if input.just_pressed(KeyCode::B) {
+        events.send(item::ItemEvent::Spawn(item::ItemID::from("Bevy")))
     }
 }

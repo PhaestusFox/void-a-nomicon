@@ -6,6 +6,8 @@ mod event;
 mod physics;
 mod pickup;
 
+pub mod tags;
+
 pub use items::Items;
 pub use event::ItemEvent;
 
@@ -16,20 +18,27 @@ impl Plugin for ItemPlugin {
         app.init_resource::<Items>();
         app.init_resource::<config::ItemConfig>();
         app.add_system(spawn_item);
-        app.add_system(event::move_down);
+        app.add_system_to_stage(CoreStage::PostUpdate, event::move_down);
         app.insert_resource(physics::Seleced(None));
         app.add_system(physics::click_check);
+        app.add_system(physics::detect_drop);
         app.add_system(physics::item_hit);
         app.add_system(pickup::move_pickup_item);
         app.add_system(pickup::set_selected);
     }
 }
 
-#[derive(Clone, Copy, Component, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Component, Hash, PartialEq, Eq)]
 pub struct ItemID(u64);
 
+impl ItemID {
+    pub fn new<T>(name: T) -> ItemID where T: Into<ItemID> {
+        name.into()
+    }
+}
+
 #[derive(Debug, Clone)]
-struct Item<'a> {
+pub struct Item<'a> {
     name: &'a str,
     icon: Handle<Image>,
 }
@@ -37,6 +46,7 @@ struct Item<'a> {
 pub struct ItemData {
     pub name: String,
     pub icon: Handle<Image>,
+    pub tags: tags::Tags,
 }
 
 fn spawn_item(
@@ -69,6 +79,7 @@ fn spawn_item(
                     p.spawn_bundle(SpriteBundle{
                         sprite: Sprite {custom_size: Some(item_settings.icon_size), ..Default::default()},
                         texture: items.get(id).icon.clone(),
+                        transform: Transform::from_translation(Vec3::Z * 0.1),
                         ..Default::default()
                     });
                 })
@@ -90,10 +101,12 @@ fn spawn_item(
                     p.spawn_bundle(SpriteBundle{
                         sprite: Sprite {custom_size: Some(item_settings.icon_size), ..Default::default()},
                         texture: items.get(&id).icon.clone(),
+                        transform: Transform::from_translation(Vec3::Z * 0.1),
                         ..Default::default()
                     });
                 })
                 .insert(*id)
+                .insert(physics::Size(item_settings.frame_size))
                 .id();
                 send.push(s_id);
             },
@@ -102,6 +115,7 @@ fn spawn_item(
     }
     for id in send {
         set.p1().send(ItemEvent::Spawned(id));
+        println!("send spawned {:?}", id);
     }
 }
 
@@ -113,6 +127,15 @@ impl<'a> From<&'a ItemData> for Item<'a> {
 
 impl From<&str> for ItemID {
     fn from(data: &str) -> Self {
+        use std::hash::*;
+        let mut hasher = std::collections::hash_map::DefaultHasher::default();
+        data.hash(&mut hasher);
+        ItemID(hasher.finish())
+    }
+}
+
+impl From<String> for ItemID {
+    fn from(data: String) -> Self {
         use std::hash::*;
         let mut hasher = std::collections::hash_map::DefaultHasher::default();
         data.hash(&mut hasher);

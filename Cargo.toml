@@ -13,3 +13,4 @@ serde = "1"
 ron = "0.8.0"
 bevy_editor_pls = {git = "https://github.com/jakobhellermann/bevy_editor_pls"}
 rand = "0.8.5"
+lazy_static = "1.4.0"

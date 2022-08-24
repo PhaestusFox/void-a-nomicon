@@ -1,0 +1,3 @@
+Bevy + Bevy = App; 0
+App + Bevy = DefaultPlugins; 0
+App + DefaultPlugins = Totally_a_game; 0

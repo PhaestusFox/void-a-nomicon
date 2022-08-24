@@ -22,6 +22,8 @@ pub fn move_down(
                 if let Ok(mut t) = query.get_mut(*e) {
                     *h += 0.001;
                     t.translation.z = *h;
+                } else {
+                    warn!("failed to find entity: {:?}", e);
                 }
             },
             _ => {},
