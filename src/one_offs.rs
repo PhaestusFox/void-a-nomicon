@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use crate::prelude::*;
 
 pub struct OneOffPlugin;
 
@@ -9,17 +9,25 @@ impl Plugin for OneOffPlugin {
 }
 
 #[derive(Debug, Component)]
-pub struct Splach(pub f32);
+pub struct Splach(pub f32, pub f32);
 
 fn clear_splash(
     mut commands: Commands,
-    mut splash: Query<(Entity, &mut Splach)>,
+    mut splash: Query<(Entity, &mut Splach, &mut Transform)>,
     time: Res<Time>,
+    mut events: EventWriter<ItemEvent>,
 ) {
-    for (e, mut splash) in splash.iter_mut() {
-        splash.0 -= time.delta_seconds();
+    for (e, mut splash, mut t) in splash.iter_mut() {
         if splash.0 < 0.0 {
-            commands.entity(e).despawn_recursive();
+            if splash.1 < 0.0 {
+                commands.entity(e).despawn_recursive();
+                events.send(ItemEvent::SpawnAt(ItemID::from("Bevy"), Vec3::ZERO));
+            } else {
+                t.scale = Vec3::splat(splash.1 + 0.31);
+                splash.1 -= time.delta_seconds() * 2.0;
+            }
+        } else {
+            splash.0 -= time.delta_seconds();
         }
     }
 }

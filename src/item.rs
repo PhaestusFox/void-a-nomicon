@@ -43,6 +43,15 @@ pub struct Item<'a> {
     icon: Handle<Image>,
 }
 
+impl Item<'_> {
+    pub fn name(&self) -> &str {
+        self.name
+    }
+    pub fn icon(&self) -> Handle<Image> {
+        self.icon.clone()
+    }
+}
+
 pub struct ItemData {
     pub name: String,
     pub icon: Handle<Image>,

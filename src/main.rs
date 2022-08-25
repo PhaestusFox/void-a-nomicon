@@ -41,6 +41,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         transform: Transform::from_translation(Vec3::Z * 10.),
         ..Default::default()
     })
+    .insert(one_offs::Splach(1., 0.69));
 }
 
 #[derive(Component)]
