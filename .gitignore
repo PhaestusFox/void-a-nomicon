@@ -1,3 +1,5 @@
 /target
 Cargo.lock
 /assets/ui
+/assets/game.sav
+/assets/game.old
