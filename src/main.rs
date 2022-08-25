@@ -6,6 +6,7 @@ mod error;
 mod ui;
 mod item;
 mod recipies;
+mod serde;
 
 fn main() {
     App::new()
@@ -18,6 +19,7 @@ fn main() {
         .add_plugin(ui::UiPlugin)
         .add_plugin(item::ItemPlugin)
         .add_plugin(recipies::RecipiePlugin)
+        .add_plugin(serde::SaveLoadPlugin)
         .insert_resource(WindowDescriptor{
             width: 1280.,
             height: 720.,
@@ -36,9 +38,9 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     .insert(MainCam);
     commands.spawn_bundle(SpriteBundle {
         texture: asset_server.load("icon.png"),
+        transform: Transform::from_translation(Vec3::Z * 10.),
         ..Default::default()
     })
-    .insert(one_offs::Splach(1.25));
 }
 
 #[derive(Component)]

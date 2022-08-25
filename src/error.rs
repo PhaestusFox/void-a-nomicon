@@ -12,4 +12,8 @@ pub enum GameError {
     RonError(#[from] ron::error::SpannedError),
     #[error("Field Not Found")]
     FieldNotFound(String),
+    #[error("Found Wrong Char '{0}' should be '{1}'")]
+    WrongChar(char, char),
+    #[error("Float Parse Err")]
+    FloatErr(#[from] std::num::ParseFloatError),
 }
