@@ -56,9 +56,7 @@ fn spawn_test_item(
    mut events: EventWriter<item::ItemEvent>,
    input: Res<Input<KeyCode>>,
 ){
-    if input.just_pressed(KeyCode::Space) {
-        events.send(item::ItemEvent::Spawn(item::ItemID::from("Test Item")))
-    } else if input.just_pressed(KeyCode::B) {
+    if input.just_pressed(KeyCode::B) {
         events.send(item::ItemEvent::Spawn(item::ItemID::from("Bevy")))
     }
 }
