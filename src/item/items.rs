@@ -164,6 +164,7 @@ impl Items {
         let path = if let Ok(new_path) = path.strip_prefix("./assets") {new_path} else {&path};
         println!("{}", path.display());
         for item in data.split("{next}") {
+            if item.len() < 5 {continue;}
             let mut map: HashMap<&str, &str> = HashMap::default();
             for seg in item.split('\n') {
                 let mut seg = seg.split(':');
