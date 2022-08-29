@@ -16,7 +16,7 @@ tags: ["perishable"]
 name: "Bacon"
 description: "Yum!!!!!!!!!"
 icon: "icons/Bacon.png"
-tags: ["perishable",]
+tags: ["perishable","meat"]
 {next}
 name: "Beer"
 description: "99 bottles of beer on the wall; 99 bottles"
@@ -30,7 +30,7 @@ tags: ["perishable",]
 name: "Bread"
 description: "Cooks into toast"
 icon: "icons/Bread.png"
-tags: ["perishable"]
+tags: ["perishable", "pie_crust"]
 {next}
 name: "Brownie"
 description: "Don't Even think about it."
@@ -49,7 +49,7 @@ icon: "icons/Cheese.png"
 name: "Cherry"
 description: ""
 icon: "icons/Cherry.png"
-tags: ["perishable",]
+tags: ["perishable","make_jam"]
 {next}
 name: "Chicken"
 description: "Witch came first the Chicken or the Egg"
@@ -58,11 +58,12 @@ icon: "icons/Chicken.png"
 name: "ChickenLeg"
 description: ""
 icon: "icons/ChickenLeg.png"
-tags: ["perishable",]
+tags: ["perishable","meat"]
 {next}
 name: "Cookie"
 description: ""
 icon: "icons/Cookie.png"
+tags: ["pie_crust"]
 {next}
 name: "DragonFruit"
 description: ""
@@ -185,7 +186,7 @@ tags: ["perishable",]
 name: "Pepperoni"
 description: ""
 icon: "icons/Pepperoni.png"
-tags: ["perishable",]
+tags: ["perishable","meat"]
 {next}
 name: "PepperRed"
 description: ""
@@ -209,12 +210,12 @@ tags: ["perishable",]
 name: "PieLemon"
 description: ""
 icon: "icons/PieLemon.png"
-tags: ["perishable",]
+tags: ["perishable","pie"]
 {next}
 name: "PiePumpkin"
 description: ""
 icon: "icons/PiePumpkin.png"
-tags: ["perishable",]
+tags: ["perishable","pie"]
 {next}
 name: "Pineapple"
 description: ""
@@ -234,17 +235,17 @@ tags: ["perishable",]
 name: "Pretzel"
 description: ""
 icon: "icons/Pretzel.png"
-tags: ["perishable",]
+tags: ["perishable", "pie_crust"]
 {next}
 name: "Ribs"
 description: ""
 icon: "icons/Ribs.png"
-tags: ["perishable",]
+tags: ["perishable","Meat"]
 {next}
 name: "Roll"
 description: ""
 icon: "icons/Roll.png"
-tags: ["perishable",]
+tags: ["perishable","pie_crust"]
 {next}
 name: "Saki"
 description: ""
@@ -264,7 +265,7 @@ tags: ["perishable",]
 name: "Sausages"
 description: ""
 icon: "icons/Sausages.png"
-tags: ["perishable",]
+tags: ["perishable","meat"]
 {next}
 name: "Shrimp"
 description: ""
@@ -274,7 +275,7 @@ tags: ["perishable",]
 name: "Steak"
 description: ""
 icon: "icons/Steak.png"
-tags: ["perishable",]
+tags: ["perishable","meat"]
 {next}
 name: "Stein"
 description: ""
@@ -309,7 +310,7 @@ tags: ["perishable",]
 name: "Waffles"
 description: ""
 icon: "icons/Waffles.png"
-tags: ["perishable",]
+tags: ["perishable","pie_crust"]
 {next}
 name: "Whiskey"
 description: ""
