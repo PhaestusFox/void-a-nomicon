@@ -1,0 +1,6 @@
+earth + water = mud; 0
+mud + time = grass; 0
+grass + time = long_grass; 0
+blood + stone = bone; 0
+bone + stone = bone_meal; 0
+grass + bone_meal = tall_grass; 0

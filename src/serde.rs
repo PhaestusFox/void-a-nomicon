@@ -1,8 +1,8 @@
 use std::{path::PathBuf, str::Chars};
 
-use bevy::time::FixedTimestep;
+use bevy::{time::FixedTimestep, window::WindowCloseRequested};
 
-use crate::{prelude::*, item::Items};
+use crate::{prelude::*, item::Items, recipies::Recipies, ui};
 
 pub struct SaveLoadPlugin;
 
@@ -16,19 +16,54 @@ impl Plugin for SaveLoadPlugin {
             .with_run_criteria(FixedTimestep::step(30.0))
             .with_system(save)
         );
+        app.add_system(save_on_quit);
         app.add_startup_system(load);
     }
 }
 
+fn save_on_quit(
+    world: Query<(&ItemID, &Transform), Without<ui::ItemSpaceItem>>,
+    items: Res<Items>,
+    mut events: EventReader<WindowCloseRequested>,
+    made: Res<Recipies>,
+) {
+    for event in events.iter() {
+        if event.id.is_primary() {
+            use std::fs;
+            if PathBuf::from(SAVE_PATH).exists() {
+                fs::rename(&SAVE_PATH, &OLD_PATH).expect("can rename");
+            }
+            let mut file = match fs::OpenOptions::new().write(true).create(true).open("./assets/game.sav") {
+            Ok(f) => {f},
+            Err(e) => {
+                if PathBuf::from(OLD_PATH).exists() {
+                    fs::rename(&OLD_PATH, &SAVE_PATH).expect("can rename");
+                }
+                error!("{}",e); return;}
+            };
+            if let Err(e) = save_to_file(&mut file, &world, &items) {
+                if PathBuf::from(OLD_PATH).exists() {
+                    fs::rename(&OLD_PATH, &SAVE_PATH).expect("can rename");
+                }
+                error!("{}",e); return;
+            }
+            made.save();
+            if let Err(e) = items.save_found() {
+                error!("{}", e);
+            }
+        }
+    }
+}
+
 fn save(
-    world: Query<(&ItemID, &Transform)>,
+    world: Query<(&ItemID, &Transform), Without<ui::ItemSpaceItem>>,
     items: Res<Items>,
 ) {
     use std::fs;
     if PathBuf::from(SAVE_PATH).exists() {
         fs::rename(&SAVE_PATH, &OLD_PATH).expect("can rename");
     }
-    let mut file = match fs::OpenOptions::new().write(true).create(true).open("./assets/game.sav") {
+    let mut file = match fs::OpenOptions::new().write(true).create(true).open(SAVE_PATH) {
       Ok(f) => {f},
       Err(e) => {
         if PathBuf::from(OLD_PATH).exists() {
@@ -44,11 +79,19 @@ fn save(
     }
 }
 
-fn save_to_file(file: &mut std::fs::File, query: &Query<(&ItemID, &Transform)>, items: &Items) -> Result<(), GameError> {
+fn save_to_file(file: &mut std::fs::File, query: &Query<(&ItemID, &Transform), Without<ui::ItemSpaceItem>>, items: &Items) -> Result<(), GameError> {
     use std::io::prelude::*;
+    let trash = ItemID::new("Trash");
+    let app = ItemID::new("Totally a game");
+    let debug = ItemID::new("Debug Item");
     for (item, at) in query.iter() {
-        let name = items.get(item).name().replace(' ', "_");
-        writeln!(file, "{}:{}",name, at.translation.truncate())?;
+        if item == &trash {continue;
+        } else if item == &app {continue;
+        } else if item == &debug {continue;
+        } else {
+            let name = items.get(item).name().replace(' ', "_");
+            writeln!(file, "{}:{}",name, at.translation.truncate())?;
+        }
     }
     Ok(())
 }
@@ -99,7 +142,6 @@ fn extract_item(mut chars: Chars) -> Result<(ItemID, Vec2), GameError> {
         if c == ',' {is_x = false; continue;}
         if is_x {x.push(c)} else {y.push(c)}
     }
-    info!("x:{}; y:{};", x , y);
     let x = x.parse()?;
     let y = y.parse()?;
     Ok((ItemID::new(name), Vec2::new(x,y)))

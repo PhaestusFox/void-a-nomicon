@@ -3,7 +3,7 @@ use crate::prelude::*;
 mod config;
 mod items;
 mod event;
-mod physics;
+pub mod physics;
 mod pickup;
 
 pub mod tags;
@@ -25,22 +25,39 @@ impl Plugin for ItemPlugin {
         app.add_system(physics::item_hit);
         app.add_system(pickup::move_pickup_item);
         app.add_system(pickup::set_selected);
+        app.add_system(items::found_update);
     }
 }
 
-#[derive(Debug, Clone, Copy, Component, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Component, Hash, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub struct ItemID(u64);
 
 impl ItemID {
     pub fn new<T>(name: T) -> ItemID where T: Into<ItemID> {
         name.into()
     }
+
+    #[inline]
+    pub fn first(self, other: Self) -> (ItemID, ItemID) {
+        if self.0 < other.0 {
+            (self, other)
+        } else {
+            (other, self)
+        }
+    }
+
+    #[inline(always)]
+    pub fn id(&self) -> u64 {
+        self.0
+    }
 }
 
 #[derive(Debug, Clone)]
 pub struct Item<'a> {
     name: &'a str,
-    icon: Handle<Image>,
+    icon: &'a Handle<Image>,
+    description: &'a str,
+    sound: &'a Handle<AudioSource>,
 }
 
 impl Item<'_> {
@@ -50,12 +67,20 @@ impl Item<'_> {
     pub fn icon(&self) -> Handle<Image> {
         self.icon.clone()
     }
+    pub fn description(&self) -> &str {
+        self.description
+    }
+    pub fn sound(&self) -> Handle<AudioSource> {
+        self.sound.clone()
+    }
 }
 
 pub struct ItemData {
     pub name: String,
+    pub description: String, 
     pub icon: Handle<Image>,
     pub tags: tags::Tags,
+    pub sound: Handle<AudioSource>,
 }
 
 fn spawn_item(
@@ -74,8 +99,8 @@ fn spawn_item(
                 let mut rng = rand::thread_rng();
                 let width = window.width / 2.;
                 let height = window.height / 2.;
-                let x = rng.gen_range(-width..width);
-                let y = rng.gen_range(-height..height);
+                let x = rng.gen_range(-width..(width - 200.));
+                let y = rng.gen_range((-height + 150.0)..height);
                 let s_id = commands.spawn_bundle(
                     SpriteBundle {
                         sprite: Sprite {custom_size: Some(item_settings.frame_size), ..Default::default()},
@@ -130,7 +155,7 @@ fn spawn_item(
 
 impl<'a> From<&'a ItemData> for Item<'a> {
     fn from(f: &'a ItemData) -> Self {
-        Item { name: &f.name, icon: f.icon.clone() }
+        Item { name: &f.name, icon: &f.icon, description: &f.description, sound: &f.sound }
     }
 }
 
@@ -138,6 +163,7 @@ impl From<&str> for ItemID {
     fn from(data: &str) -> Self {
         use std::hash::*;
         let mut hasher = std::collections::hash_map::DefaultHasher::default();
+        let data = data.replace(' ', "_").to_lowercase();
         data.hash(&mut hasher);
         ItemID(hasher.finish())
     }
@@ -147,6 +173,7 @@ impl From<String> for ItemID {
     fn from(data: String) -> Self {
         use std::hash::*;
         let mut hasher = std::collections::hash_map::DefaultHasher::default();
+        let data = data.replace(' ', "_").to_lowercase();
         data.hash(&mut hasher);
         ItemID(hasher.finish())
     }

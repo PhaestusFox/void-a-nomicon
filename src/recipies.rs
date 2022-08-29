@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path::Path};
+use std::{collections::{HashMap, HashSet}, path::Path};
 use crate::prelude::*;
 
 pub struct RecipiePlugin;
@@ -8,6 +8,8 @@ impl Plugin for RecipiePlugin {
         app.insert_resource(Recipies::default());
         app.add_system(combine);
         app.add_startup_system(load_recipies);
+        app.add_startup_system(set_trash);
+        app.init_resource::<MadeSound>();
     }
 }
 
@@ -15,15 +17,25 @@ fn load_recipies(
     mut recipies: ResMut<Recipies>,
 ) {
     use std::fs;
-    for file in fs::read_dir("./assets/recipies").unwrap() {
-        if file.is_err() {continue;}
-        let file = file.unwrap();
-        if let Some(ext) = file.path().extension() {if ext != "vr" {continue;}}
-        recipies.load(file.path());
+    if let Ok(data) = fs::read_to_string("./assets/made.sav") {
+        let mut made = HashSet::new();
+        for line in data.split('\n') {
+            let id:(ItemID, ItemID) = if let Ok(i) = ron::from_str(line) {i} else {continue;};
+            made.insert(id);
+        }
+        recipies.made = made;
+    }
+    if let Err(e) = recipies.load_folder("./assets") {
+        error!("{}", e);
     }
 }
 
-
+fn set_trash(
+    items: Res<Items>,
+    mut recipies: ResMut<Recipies>,
+) {
+    recipies.set_trash(items.all());
+}
 
 #[cfg(test)]
 mod test {
@@ -33,9 +45,7 @@ mod test {
     use super::{Recipie,Recipies};
     #[test]
     fn item_item_test() {
-        let mut recipies = Recipies{
-            items: HashMap::default(),
-        };
+        let mut recipies = Recipies::default();
         let item1 = ItemID::from("F");
         let item2 = ItemID::from("FF");
         let item3 = ItemID::from("G");
@@ -52,9 +62,7 @@ mod test {
 
     #[test]
     fn item_from_str() {
-        let mut recipies = Recipies{
-            items: HashMap::default(),
-        };
+        let mut recipies = Recipies::default();
         let item1 = ItemID::from("F");
         let item2 = ItemID::from("FF");
         let item3 = ItemID::from("G");
@@ -88,48 +96,102 @@ mod test {
 
 #[derive(Debug, Default)]
 pub struct Recipies{
-    items: HashMap<ItemID, HashMap<ItemID, (Vec<ItemID>, u16)>>
+    all: HashMap<ItemID, HashMap<ItemID, (Vec<ItemID>, u16)>>,
+    made: HashSet<(ItemID, ItemID)>,
 }
 
 impl Recipies {
+    pub fn load_folder<P>(&mut self, path: P) -> Result<(), GameError> where P: AsRef<Path> {
+        use std::fs;
+        for file in fs::read_dir(path)? {
+            let file = match file {Ok(f) => {f}, Err(e) => {error!("{}", e); continue;},};
+            if file.metadata()?.is_dir() {
+                if let Err(e) = self.load_folder(file.path()) {
+                    error!("Rec: {}", e);
+                };
+                continue;
+            }
+            if let Some(ext) = file.path().extension() {if ext != "vr" {continue;}}
+            self.load(file.path())?;
+        }
+        Ok(())
+    }
+
+    #[inline(always)]
     pub fn add(&mut self, recipie: Recipie)
     {
         self.insert(recipie.item_1, recipie.item_2, recipie.result, recipie.priority);
-        if recipie.item_1 != recipie.item_2 {
-            self.insert(recipie.item_2, recipie.item_1, recipie.result, recipie.priority);
+    }
+
+    pub fn save(&self) {
+        use std::io::prelude::*;
+        let mut file = if let Ok(f) = std::fs::OpenOptions::new().create(true).write(true).open("./assets/made.sav") {
+            f
+        } else {
+            error!("Failed to create file");
+            return;
+        };
+        for item in self.made.iter() {
+            if let Ok(d) = ron::to_string(item) {
+                let _ = writeln!(&mut file,"{}", d);
+            }
         }
     }
 
-    pub fn load<P>(&mut self, path: P)
+    pub fn load<P>(&mut self, path: P) -> Result<(), GameError>
     where P: AsRef<Path> {
-        let file = std::fs::read_to_string(path).unwrap();
+        let file = std::fs::read_to_string(path)?;
         for line in file.split('\n') {
             self.add(Recipie::from_str(line));
         }
+        Ok(())
     }
 
-    fn insert(&mut self, outter: ItemID, inner: ItemID, add: ItemID, p: u16) {
-        if !self.items.contains_key(&outter) {self.items.insert(outter, HashMap::default());};
-        if let Some(out) = self.items.get_mut(&outter) {
-            if let Some(inn) = out.get_mut(&inner) {
+    fn insert(&mut self, item1: ItemID, item2: ItemID, add: ItemID, p: u16) {
+        let (item1, item2) = item1.first(item2);
+        if !self.all.contains_key(&item1) {self.all.insert(item1, HashMap::default());};
+        if let Some(out) = self.all.get_mut(&item1) {
+            if let Some(inn) = out.get_mut(&item2) {
                 if inn.1 > p {
-                    out.insert(inner, (vec![add], p));
+                    out.insert(item2, (vec![add], p));
                 } else if inn.1 == p {
                     inn.0.push(add);
                 }
             } else {
-                out.insert(inner, (vec![add], p));
+                out.insert(item2, (vec![add], p));
             }
         }
     } 
 
-    pub fn combine(&self, item1: ItemID, item2: ItemID) -> Option<Vec<ItemID>> {
-        if let Some(recipies) = self.items.get(&item1) {
+    pub fn combine(&mut self, item1: ItemID, item2: ItemID) -> Option<Vec<ItemID>> {
+        let (item1, item2) = item1.first(item2);
+        if let Some(recipies) = self.all.get(&item1) {
             if let Some(recipie) = recipies.get(&item2) {
+                self.made.insert((item1, item2));
                 return Some(recipie.0.clone());
             }
         }
         None
+    }
+
+    pub fn set_trash(&mut self, items: Vec<ItemID>) {
+        let trash = ItemID::from("Trash");
+        for item in items {
+            self.insert(item, trash, trash, u16::MAX);
+        }
+    }
+
+    pub fn check_combine(&self, item1: ItemID, item2: ItemID) -> bool {
+        let (item1, item2) = item1.first(item2);
+        if let Some(recipies) = self.all.get(&item1) {
+            recipies.get(&item2).is_some()
+        } else {
+            false
+        }
+    }
+
+    pub fn has_made(&self, item1: ItemID, item2: ItemID) -> bool {
+        self.made.contains(&item1.first(item2))
     }
 }
 
@@ -150,6 +212,10 @@ impl Recipie {
         let p = extract_word(&mut chars, '\n').parse().unwrap_or(0);
         Recipie { priority: p, item_1: ItemID::new(item1), item_2: ItemID::new(item2), result: ItemID::new(res) }
     }
+
+    pub fn items(&self) -> (ItemID, ItemID) {
+        self.item_1.first(self.item_2)
+    }
 }
 
 fn extract_word(chars: &mut std::str::Chars, end: char) -> String {
@@ -163,17 +229,33 @@ fn extract_word(chars: &mut std::str::Chars, end: char) -> String {
     word
 }
 
+struct MadeSound(Handle<AudioSource>);
+
+impl FromWorld for MadeSound {
+    fn from_world(world: &mut World) -> Self {
+        let a_s = world.resource::<AssetServer>();
+        MadeSound(a_s.load("sounds/made.wav"))
+    }
+}
+
 fn combine(
     mut set: ParamSet<(EventReader<ItemEvent>, EventWriter<ItemEvent>)>,
-    recipies: Res<Recipies>,
+    mut recipies: ResMut<Recipies>,
     query: Query<(&ItemID, &Transform)>,
     mut commands: Commands,
+    res: Res<Audio>,
+    made: Res<MadeSound>,
 ) {
+    let trash = ItemID::new("Trash");
     let mut send = Vec::new();
     for event in set.p0().iter() {
         if let ItemEvent::CheckCombine(item1_e, item2_e) = event {
             let (item1, t1) = if let Ok(i) = query.get(*item1_e) {i} else {continue;};
             let (item2, _) = if let Ok(i) = query.get(*item2_e) {i} else {continue;};
+            if recipies.has_made(*item1, *item2) && item1.id() != trash.id() && item2.id() != trash.id() {
+                res.play(made.0.clone());
+                continue;
+            }
             if let Some(r) = recipies.combine(*item1, *item2) {
                 for r in r {
                     use rand::Rng;

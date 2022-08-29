@@ -1,6 +1,7 @@
 use crate::prelude::*;
 
 pub enum ItemEvent {
+    ToolTip(ItemID),
     Spawn(ItemID),
     SpawnAt(ItemID, Vec3),
     Spawned(Entity),
@@ -8,6 +9,7 @@ pub enum ItemEvent {
     Drop,
     Droped(Entity),
     CheckCombine(Entity, Entity),
+    Found(ItemID),
 }
 
 pub fn move_down(

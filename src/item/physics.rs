@@ -98,7 +98,7 @@ pub fn item_hit(
     }
 }
 
-fn box_point_hit(
+pub fn box_point_hit(
     size: Vec2,
     center: Vec2,
     point: Vec2,

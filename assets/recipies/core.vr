@@ -1,0 +1,13 @@
+void + void = space; 0
+space + space = dust; 0
+dust + dust = earth; 0
+dust + space = air; 0
+air + void = fire; 0
+fire + earth = lava; 0
+lava + air = stone; 0
+fire + space = energy; 0
+space + energy = star; 0
+energy + air = pressure; 0
+pressure + stone = blood; 0
+blood + fire = steam; 0
+steam + time = water; 0

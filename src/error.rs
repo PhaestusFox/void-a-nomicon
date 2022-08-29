@@ -8,8 +8,10 @@ pub enum GameError {
     NoConfig(String),
     #[error("IO error")]
     IOError(#[from] std::io::Error),
+    #[error("Ron Spanned Error")]
+    RonSpannedError(#[from] ron::error::SpannedError),
     #[error("Ron Error")]
-    RonError(#[from] ron::error::SpannedError),
+    RonError(#[from] ron::Error),
     #[error("Field Not Found")]
     FieldNotFound(String),
     #[error("Found Wrong Char '{0}' should be '{1}'")]
