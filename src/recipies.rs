@@ -1,4 +1,5 @@
 use std::{collections::{HashMap, HashSet}, path::Path};
+
 use crate::prelude::*;
 
 pub struct RecipiePlugin;
@@ -15,6 +16,7 @@ impl Plugin for RecipiePlugin {
 
 fn load_recipies(
     mut recipies: ResMut<Recipies>,
+    items: Res<Items>,
 ) {
     use std::fs;
     if let Ok(data) = fs::read_to_string("./assets/made.sav") {
@@ -25,9 +27,65 @@ fn load_recipies(
         }
         recipies.made = made;
     }
-    if let Err(e) = recipies.load_folder("./assets") {
-        error!("{}", e);
+    for recipie in load_recipies_from_folder("./assets")
+    {
+        match recipie {
+            RecipieType::None => {},
+            RecipieType::AddRecipie { item1, item2, makes, rank } => recipies.insert(item1, item2, makes, rank),
+            RecipieType::AddTagRecipie { item, has, makes, rank } => {
+                if let Some(items) = items.with_tag(&has) {
+                    for item2 in items {
+                        recipies.insert(item, *item2, makes, rank);
+                    }
+                }
+            },
+            RecipieType::MakeTagRecipie { item1_has, item2_has, makes, rank } => {
+                if let (Some(items1), Some(items2)) = (items.with_tag(&item1_has), items.with_tag(&item2_has)) {
+                    for item1 in items1 {
+                        for item2 in items2.clone() {
+                            recipies.insert(*item1, *item2, makes, rank);
+                        }
+                    }
+                }
+            },
+        }
     }
+}
+
+fn load_recipies_from_folder<P>(path: P) -> Vec<RecipieType> where P: AsRef<std::path::Path> {
+    use std::fs;
+    let mut found = Vec::new();
+    let dir = if let Ok(dir) = fs::read_dir(path) {dir} else {return found;};
+    for file in dir {
+        let file = match file {Ok(f) => {f}, Err(e) => {error!("{}", e); continue;},};
+        if let Ok(md) = file.metadata() {
+            if md.is_dir() {
+                let mut res = load_recipies_from_folder(file.path());
+                found.append(&mut res);
+                continue;
+            }
+        }
+        if let Some(ext) = file.path().extension() {if ext != "vr" {continue;}}
+        let mut res = load_recipies_from_file(file.path());
+        found.append(&mut res);
+    }
+    found
+}
+
+fn load_recipies_from_file<P>(path: P) -> Vec<RecipieType> where P:AsRef<std::path::Path> {
+    use std::fs;
+    let mut res = Vec::new();
+    let data = match fs::read_to_string(path) {
+        Ok(data) => {data}
+        Err(e) => {error!("{}", e); return res;}
+    };
+    for line in data.lines() {
+        match RecipieType::from_str(line) {
+            Ok(r) => res.push(r),
+            Err(e) => error!("{}",e),
+        }
+    }
+    res
 }
 
 fn set_trash(
@@ -39,8 +97,6 @@ fn set_trash(
 
 #[cfg(test)]
 mod test {
-    use std::collections::HashMap;
-
     use crate::prelude::*;
     use super::{Recipie,Recipies};
     #[test]
@@ -147,18 +203,18 @@ impl Recipies {
         Ok(())
     }
 
-    fn insert(&mut self, item1: ItemID, item2: ItemID, add: ItemID, p: u16) {
+    fn insert(&mut self, item1: ItemID, item2: ItemID, makes: ItemID, rank: u16) {
         let (item1, item2) = item1.first(item2);
         if !self.all.contains_key(&item1) {self.all.insert(item1, HashMap::default());};
         if let Some(out) = self.all.get_mut(&item1) {
             if let Some(inn) = out.get_mut(&item2) {
-                if inn.1 > p {
-                    out.insert(item2, (vec![add], p));
-                } else if inn.1 == p {
-                    inn.0.push(add);
+                if inn.1 > rank {
+                    out.insert(item2, (vec![makes], rank));
+                } else if inn.1 == rank {
+                    inn.0.push(makes);
                 }
             } else {
-                out.insert(item2, (vec![add], p));
+                out.insert(item2, (vec![makes], rank));
             }
         }
     } 
@@ -271,4 +327,57 @@ fn combine(
     for item in send {
         set.p1().send(item);
     }
+}
+
+enum RecipieType {
+    None,
+    AddRecipie {
+        item1: ItemID,
+        item2: ItemID, 
+        makes: ItemID,
+        rank: u16,
+    },
+    AddTagRecipie {
+        item: ItemID,
+        has: Tag,
+        makes: ItemID,
+        rank: u16,
+    },
+    MakeTagRecipie {
+        item1_has: Tag,
+        item2_has: Tag,
+        makes: ItemID,
+        rank: u16,
+    }
+}
+
+impl RecipieType {
+    fn from_str(str: &str) -> Result<RecipieType, GameError> {
+        let mut chars = str.chars();
+        let first = extract_word(&mut chars, '+');
+        let second = extract_word(&mut chars, '=');
+        let makes = ItemID::from(extract_word(&mut chars, ';'));
+        let first = if first.starts_with('$') {State::Tag(Tag::from_str(&first[1..])?)} else {State::Item(ItemID::from(first))};
+        let second = if second.starts_with('$') {State::Tag(Tag::from_str(&second[1..])?)} else {State::Item(ItemID::from(second))};
+        let rank = extract_word(&mut chars, '\n').parse().unwrap_or_else(|_| {
+            match (first, second) {
+                (State::Item(_), State::Item(_)) => {0},
+                (State::Item(_), State::Tag(_)) |
+                (State::Tag(_), State::Item(_)) => {1},
+                (State::Tag(_), State::Tag(_)) => {2},
+            }
+        });
+        match (first, second) {
+            (State::Item(item1), State::Item(item2)) => Ok(RecipieType::AddRecipie { item1, item2, makes, rank}),
+            (State::Item(item), State::Tag(has)) |
+            (State::Tag(has), State::Item(item)) => Ok(RecipieType::AddTagRecipie { item, has, makes, rank}),
+            (State::Tag(item1_has), State::Tag(item2_has)) => Ok(RecipieType::MakeTagRecipie { item1_has, item2_has, makes, rank}),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+enum State {
+    Tag(Tag),
+    Item(ItemID),
 }

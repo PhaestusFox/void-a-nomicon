@@ -188,12 +188,17 @@ fn can_spawn_time(
     res: Res<StoryFlags>,
     mut local: Local<f32>,
     time: Res<Time>,
+    query: Query<&ItemID>,
 ) -> ShouldRun {
     *local += time.delta_seconds();
     if *local < 150. {
         return ShouldRun::No
     }
     *local %= 150.;
+    let time = ItemID::from("Time");
+    for item in query.iter() {
+        if item.id() == time.id() {return ShouldRun::No;}
+    }
     if res.unlocked_app {
         ShouldRun::Yes
     } else {

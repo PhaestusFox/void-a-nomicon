@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use std::{collections::{HashMap, HashSet}, path::Path};
+use std::{collections::{HashMap, HashSet}, path::{Path, PathBuf}};
 
 use super::{ItemData, Item, ItemID};
 
@@ -8,6 +8,7 @@ const ITEM_SAVE: &'static str = "./assets/found.sav";
 pub struct Items {
     data: HashMap<ItemID, ItemData>,
     debug_item: ItemData,
+    has_tag: HashMap<Tag, HashSet<ItemID>>,
     found: HashSet<ItemID>,
 }
 
@@ -35,9 +36,13 @@ impl FromWorld for Items {
                 description: "This Item Is Spawned in place of an unknown item. maybe you removed a mod? or updated the game".to_string(),
                 sound: asset_server.load("sounds/pop.wav"),
             },
+            has_tag: HashMap::default(),
             found,
         };
         if let Err(e) = items.load_folder("./assets", &asset_server) {
+            error!("{}", e);
+        }
+        if let Err(e) = items.path_items("./assets", &asset_server) {
             error!("{}", e);
         }
         items
@@ -78,6 +83,22 @@ impl Items {
         Ok(())
     }
 
+    pub fn path_items<P>(&mut self, path: P, asset_server: &AssetServer) -> Result<(), GameError> where P: AsRef<Path> {
+        use std::fs;
+        for file in fs::read_dir(path)? {
+            let file = match file {Ok(f) => {f}, Err(e) => {error!("failed load file: {}", e); continue;},};
+            if file.metadata()?.is_dir() {
+                if let Err(e) = self.path_items(file.path(), asset_server) {
+                    error!("failed recursive: {}", e);
+                };
+                continue;
+            }
+            if let Some(ext) = file.path().extension() {if ext != "vp" {continue;}}
+            if let Err(e) = self.path(file.path()) {error!("failed path: {}", e)};
+        }
+        Ok(())
+    }
+
     pub fn save_found(&self) -> Result<(), GameError> {
         use std::fs;
         use std::io::prelude::*;
@@ -92,13 +113,56 @@ impl Items {
     }
 
     pub fn insert(&mut self, id: impl Into<ItemID>, data: ItemData) {
+        let id: ItemID = id.into();
+        for tag in data.tags.iter() {
+            if let Some(set) = self.has_tag.get_mut(tag) {
+                set.insert(id);
+            } else {
+                let mut set = HashSet::new();
+                set.insert(id);
+                self.has_tag.insert(*tag, set);
+            }
+        }
+        if self.data.contains_key(&id) {return;}
         self.data.insert(id.into(), data);
     }
 
+    pub fn path<P>(&mut self, path: P) -> Result<(), GameError> where P: AsRef<std::path::Path> {
+        let data = std::fs::read_to_string(&path)?;
+        for path in data.split("{next}") {
+            let mut segs = path.split(':');
+            let id = if let Some(name) = segs.next() {ItemID::from(name)} else {continue;};
+            if let Some(path) = segs.next() {
+                if let Ok(tags) = ron::from_str::<Tags>(path) {
+                    self.add_tags(&id, &tags);
+                }
+            }
+        }
+        Ok(())
+    }
+
+    pub fn add_tags(&mut self,id: &ItemID, tags: &Tags) {
+        if let Some(data) =  self.data.get_mut(id) {
+            data.tags.merge(tags);
+        }
+    }
+
+    pub fn with_tag(&self, tag: &Tag) -> Option<std::collections::hash_set::Iter<ItemID>> {
+        if let Some(res) = self.has_tag.get(tag) {
+            Some(res.iter())
+        } else {
+            None
+        }
+    }
+
     pub fn load<P>(&mut self, path: P, asset_server: &AssetServer) -> Result<(), GameError>
-    where P: AsRef<std::path::Path>
+    where P: Into<PathBuf>
     {
-        let data = std::fs::read_to_string(path)?;
+        let mut path: PathBuf = path.into();
+        let data = std::fs::read_to_string(&path)?;
+        path.pop();
+        let path = if let Ok(new_path) = path.strip_prefix("./assets") {new_path} else {&path};
+        println!("{}", path.display());
         for item in data.split("{next}") {
             let mut map: HashMap<&str, &str> = HashMap::default();
             for seg in item.split('\n') {
@@ -111,18 +175,18 @@ impl Items {
                     debug!("failed to load {:?} with {:?}; {}:{}:{}", name, val, file!(), line!(), column!());
                 }
             }
-            let icon_path: String = unwrap_or_t(&map, "icon")?;
-            let sound: String = unwrap_or_t(&map, "sound").unwrap_or("sounds/pop.wav".to_string());
+            let icon: Handle<Image> = if let Ok(icon_path) = unwrap_or_t::<String>(&map, "icon") {asset_server.load(path.join(icon_path))} else {self.debug_item.icon.clone()};
+            let sound: Handle<AudioSource> = if let Ok(sound_path) =  unwrap_or_t::<String>(&map, "sound") {asset_server.load(path.join(sound_path))} else {self.debug_item.sound.clone()};
             let name: String = unwrap_or_t(&map, "name")?;
             let id = ItemID::from(name.as_str());
             let tags = unwrap_or_t(&map, "tags").unwrap_or_default();
             let description = unwrap_or_t(&map, "description").unwrap_or("No description for this item;".to_string());
             self.insert(id, ItemData {
                 name,
-                icon: asset_server.load(&icon_path),
+                icon,
                 tags,
                 description,
-                sound: asset_server.load(&sound),
+                sound,
             });
         }
         Ok(())

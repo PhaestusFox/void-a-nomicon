@@ -71,6 +71,14 @@ impl Tags {
     pub fn contains(&self, tag: &Tag) -> bool {
         self.0.contains(tag)
     }
+    pub fn iter(&self) -> std::collections::hash_set::Iter<Tag> {
+        self.0.iter()
+    }
+    pub fn merge(&mut self, other: &Tags) {
+        for tag in other.iter() {
+            self.0.insert(*tag);
+        }
+    }
 }
 
 impl Serialize for Tags {

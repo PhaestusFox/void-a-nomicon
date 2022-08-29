@@ -18,4 +18,6 @@ pub enum GameError {
     WrongChar(char, char),
     #[error("Float Parse Err")]
     FloatErr(#[from] std::num::ParseFloatError),
+    #[error("Tag Err")]
+    TagErr(#[from] crate::item::tags::TagError),
 }

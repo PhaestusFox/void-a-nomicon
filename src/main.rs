@@ -1,30 +1,22 @@
-use bevy::prelude::*;
-
-mod prelude;
-mod one_offs;
-mod error;
-mod ui;
-mod item;
-mod recipies;
-mod serde;
-pub mod story;
-mod sound;
+use bevy::{prelude::*, render::texture::ImageSettings};
+use void_a_nomicon::prelude::*;
 
 fn main() {
     App::new()
         .init_resource::<MACHOC>()
+        .insert_resource(ImageSettings::default_nearest())
         .add_plugins(DefaultPlugins)
         .add_plugin(bevy_editor_pls::prelude::EditorPlugin)
         .add_plugin(bevy::diagnostic::DiagnosticsPlugin)
         .add_plugin(bevy::diagnostic::FrameTimeDiagnosticsPlugin)
         .add_plugin(bevy::diagnostic::EntityCountDiagnosticsPlugin)
-        .add_plugin(one_offs::OneOffPlugin)
-        .add_plugin(ui::UiPlugin)
-        .add_plugin(item::ItemPlugin)
-        .add_plugin(recipies::RecipiePlugin)
-        .add_plugin(serde::SaveLoadPlugin)
-        .add_plugin(story::StoryPlugin)
-        .add_plugin(sound::SoundPlugin)
+        .add_plugin(void_a_nomicon::one_offs::OneOffPlugin)
+        .add_plugin(void_a_nomicon::ui::UiPlugin)
+        .add_plugin(void_a_nomicon::item::ItemPlugin)
+        .add_plugin(void_a_nomicon::recipies::RecipiePlugin)
+        .add_plugin(void_a_nomicon::serde::SaveLoadPlugin)
+        .add_plugin(void_a_nomicon::story::StoryPlugin)
+        .add_plugin(void_a_nomicon::sound::SoundPlugin)
         .insert_resource(WindowDescriptor{
             width: 1280.,
             height: 720.,
@@ -47,18 +39,15 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         transform: Transform::from_translation(Vec3::Z * 10.),
         ..Default::default()
     })
-    .insert(one_offs::Splach(1., 0.69));
+    .insert(void_a_nomicon::one_offs::Splach(1., 0.69));
 }
 
-#[derive(Component)]
-pub struct MainCam;
-
 fn spawn_test_item(
-   mut events: EventWriter<item::ItemEvent>,
+   mut events: EventWriter<ItemEvent>,
    input: Res<Input<KeyCode>>,
 ){
     if input.just_pressed(KeyCode::B) {
-        events.send(item::ItemEvent::Spawn(item::ItemID::from("Bevy")))
+        events.send(ItemEvent::Spawn(ItemID::from("Bevy")))
     }
 }
 

@@ -22,7 +22,7 @@ fn clear_splash(
         if splash.0 < 0.0 {
             if splash.1 < 0.0 {
                 commands.entity(e).despawn_recursive();
-                if bevys.0 < 5 {
+                if bevys.0 < 2 {
                     events.send(ItemEvent::SpawnAt(ItemID::from("Bevy"), Vec3::ZERO));
                 }
             } else {
