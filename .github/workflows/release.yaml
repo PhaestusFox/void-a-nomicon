@@ -148,23 +148,22 @@ jobs:
         run: |
           export CFLAGS="-fno-stack-check"
           export MACOSX_DEPLOYMENT_TARGET="10.9"
-
       - name: Build
         run: |
           cargo build --release --target x86_64-apple-darwin
-
       - name: Prepare Package
         run: |
-          mkdir -p ${{ env.binary }}.app/Contents/MacOS
-          cp target/x86_64-apple-darwin/release/${{ env.binary }} ${{ env.binary }}.app/Contents/MacOS/
-          cp -r assets ${{ env.binary }}.app/Contents/MacOS/
-          hdiutil create -fs HFS+ -volname "${{ env.binary }}" -srcfolder ${{ env.binary }}.app ${{ env.binary }}.dmg
-
+          mkdir -p macintel
+          cp target/x86_64-apple-darwin/release/${{ env.binary }} macintel/
+          cp -r assets macintel
+      - name: Package as a zip
+        run: |
+          tar -zcvf ${{ env.binary }}.tar.gz macintel
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ env.binary }}.dmg
-          asset_name: ${{ env.binary }}-macos-${{ steps.get_version.outputs.tag }}.dmg
+          file: ${{ env.binary }}.tar.gz
+          asset_name: ${{ env.binary }}-macos.tar.gz
           tag: ${{ github.ref }}
           overwrite: true
