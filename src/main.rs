@@ -7,6 +7,8 @@ mod ui;
 mod item;
 mod recipies;
 mod serde;
+pub mod story;
+mod sound;
 
 fn main() {
     App::new()
@@ -20,9 +22,12 @@ fn main() {
         .add_plugin(item::ItemPlugin)
         .add_plugin(recipies::RecipiePlugin)
         .add_plugin(serde::SaveLoadPlugin)
+        .add_plugin(story::StoryPlugin)
+        .add_plugin(sound::SoundPlugin)
         .insert_resource(WindowDescriptor{
             width: 1280.,
             height: 720.,
+            resizable: false,
             ..Default::default()
         })
         .add_startup_system(setup)
