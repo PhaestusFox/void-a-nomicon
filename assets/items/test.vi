@@ -1,4 +1,0 @@
-name: "Test Item"
-icon: "./ui/circle_01.png"
-tags: ["Test", "Meta"]
-description: "This is a test item;\nthis should be a new line;P"

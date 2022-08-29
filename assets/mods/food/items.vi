@@ -1,0 +1,322 @@
+name: "Apple"
+description: "An Apple"
+icon: "icons/Apple.png"
+tags: ["perishable"]
+{next}
+name: "AppleWorm"
+description: "yuck this apple has a worm in it"
+icon: "icons/AppleWorm.png"
+tags: ["perishable"]
+{next}
+name: "Avocado"
+description: "Great on toast"
+icon: "icons/Avocado.png"
+tags: ["perishable"]
+{next}
+name: "Bacon"
+description: "Yum!!!!!!!!!"
+icon: "icons/Bacon.png"
+tags: ["perishable",]
+{next}
+name: "Beer"
+description: "99 bottles of beer on the wall; 99 bottles"
+icon: "icons/Beer.png"
+{next}
+name: "Boar"
+description: "Futur bacon"
+icon: "icons/Boar.png"
+tags: ["perishable",]
+{next}
+name: "Bread"
+description: "Cooks into toast"
+icon: "icons/Bread.png"
+tags: ["perishable"]
+{next}
+name: "Brownie"
+description: "Don't Even think about it."
+icon: "icons/Brownie.png"
+tags: ["perishable"]
+{next}
+name: "Bug"
+description: "Why are you eating this."
+icon: "icons/Bug.png"
+tags: ["perishable",]
+{next}
+name: "Cheese"
+description: "Old Milk"
+icon: "icons/Cheese.png"
+{next}
+name: "Cherry"
+description: ""
+icon: "icons/Cherry.png"
+tags: ["perishable",]
+{next}
+name: "Chicken"
+description: "Witch came first the Chicken or the Egg"
+icon: "icons/Chicken.png"
+{next}
+name: "ChickenLeg"
+description: ""
+icon: "icons/ChickenLeg.png"
+tags: ["perishable",]
+{next}
+name: "Cookie"
+description: ""
+icon: "icons/Cookie.png"
+{next}
+name: "DragonFruit"
+description: ""
+icon: "icons/DragonFruit.png"
+tags: ["perishable",]
+{next}
+name: "Eggplant"
+description: ""
+icon: "icons/Eggplant.png"
+tags: ["perishable",]
+{next}
+name: "Eggs"
+description: "Witch came first the Chicken or the Egg"
+icon: "icons/Eggs.png"
+tags: ["perishable",]
+{next}
+name: "Fish"
+description: ""
+icon: "icons/Fish.png"
+tags: ["perishable",]
+{next}
+name: "FishFillet"
+description: ""
+icon: "icons/FishFillet.png"
+tags: ["perishable",]
+{next}
+name: "FishSteak"
+description: ""
+icon: "icons/FishSteak.png"
+tags: ["perishable",]
+{next}
+name: "Grub"
+description: ""
+icon: "icons/Grub.png"
+tags: ["perishable",]
+{next}
+name: "Grubs"
+description: ""
+icon: "icons/Grubs.png"
+tags: ["perishable",]
+{next}
+name: "Honey"
+description: ""
+icon: "icons/Honey.png"
+tags: ["perishable",]
+{next}
+name: "Honeycomb"
+description: ""
+icon: "icons/Honeycomb.png"
+tags: ["perishable",]
+{next}
+name: "Jam"
+description: ""
+icon: "icons/Jam.png"
+tags: ["perishable",]
+{next}
+name: "Jerky"
+description: ""
+icon: "icons/Jerky.png"
+tags: ["perishable",]
+{next}
+name: "Lemon"
+description: ""
+icon: "icons/Lemon.png"
+tags: ["perishable",]
+{next}
+name: "Marmalade"
+description: ""
+icon: "icons/Marmalade.png"
+tags: ["perishable",]
+{next}
+name: "MelonCantaloupe"
+description: ""
+icon: "icons/MelonCantaloupe.png"
+tags: ["perishable",]
+{next}
+name: "MelonHoneydew"
+description: ""
+icon: "icons/MelonHoneydew.png"
+tags: ["perishable",]
+{next}
+name: "MelonWater"
+description: ""
+icon: "icons/MelonWater.png"
+tags: ["perishable",]
+{next}
+name: "Mold"
+description: "yuck its gone moldy"
+icon: "icons/Mold.png"
+{next}
+name: "Moonshine"
+description: ""
+icon: "icons/Moonshine.png"
+tags: ["perishable",]
+{next}
+name: "Olive"
+description: ""
+icon: "icons/Olive.png"
+tags: ["perishable",]
+{next}
+name: "Onion"
+description: ""
+icon: "icons/Onion.png"
+tags: ["perishable",]
+{next}
+name: "Peach"
+description: ""
+icon: "icons/Peach.png"
+tags: ["perishable","make_jam"]
+{next}
+name: "Penicillin"
+description: "the good mold"
+icon: "icons/Penicillin.png"
+{next}
+name: "PepperGreen"
+description: ""
+icon: "icons/PepperGreen.png"
+tags: ["perishable",]
+{next}
+name: "Pepperoni"
+description: ""
+icon: "icons/Pepperoni.png"
+tags: ["perishable",]
+{next}
+name: "PepperRed"
+description: ""
+icon: "icons/PepperRed.png"
+tags: ["perishable",]
+{next}
+name: "Pickle"
+description: ""
+icon: "icons/Pickle.png"
+tags: ["perishable",]
+{next}
+name: "PickledEggs"
+description: ""
+icon: "icons/PickledEggs.png"
+{next}
+name: "PieApple"
+description: ""
+icon: "icons/PieApple.png"
+tags: ["perishable",]
+{next}
+name: "PieLemon"
+description: ""
+icon: "icons/PieLemon.png"
+tags: ["perishable",]
+{next}
+name: "PiePumpkin"
+description: ""
+icon: "icons/PiePumpkin.png"
+tags: ["perishable",]
+{next}
+name: "Pineapple"
+description: ""
+icon: "icons/Pineapple.png"
+tags: ["perishable",]
+{next}
+name: "Potato"
+description: ""
+icon: "icons/Potato.png"
+tags: ["perishable",]
+{next}
+name: "PotatoRed"
+description: ""
+icon: "icons/PotatoRed.png"
+tags: ["perishable",]
+{next}
+name: "Pretzel"
+description: ""
+icon: "icons/Pretzel.png"
+tags: ["perishable",]
+{next}
+name: "Ribs"
+description: ""
+icon: "icons/Ribs.png"
+tags: ["perishable",]
+{next}
+name: "Roll"
+description: ""
+icon: "icons/Roll.png"
+tags: ["perishable",]
+{next}
+name: "Saki"
+description: ""
+icon: "icons/Saki.png"
+tags: ["perishable",]
+{next}
+name: "Sardines"
+description: ""
+icon: "icons/Sardines.png"
+tags: ["perishable",]
+{next}
+name: "Sashimi"
+description: ""
+icon: "icons/Sashimi.png"
+tags: ["perishable",]
+{next}
+name: "Sausages"
+description: ""
+icon: "icons/Sausages.png"
+tags: ["perishable",]
+{next}
+name: "Shrimp"
+description: ""
+icon: "icons/Shrimp.png"
+tags: ["perishable",]
+{next}
+name: "Steak"
+description: ""
+icon: "icons/Steak.png"
+tags: ["perishable",]
+{next}
+name: "Stein"
+description: ""
+icon: "icons/Stein.png"
+tags: ["perishable",]
+{next}
+name: "Strawberry"
+description: ""
+icon: "icons/Strawberry.png"
+tags: ["perishable","make_jam"]
+{next}
+name: "Sushi"
+description: ""
+icon: "icons/Sushi.png"
+tags: ["perishable",]
+{next}
+name: "Tart"
+description: ""
+icon: "icons/Tart.png"
+tags: ["pie_crust"]
+{next}
+name: "Tomato"
+description: ""
+icon: "icons/Tomato.png"
+tags: ["perishable",]
+{next}
+name: "Turnip"
+description: ""
+icon: "icons/Turnip.png"
+tags: ["perishable",]
+{next}
+name: "Waffles"
+description: ""
+icon: "icons/Waffles.png"
+tags: ["perishable",]
+{next}
+name: "Whiskey"
+description: ""
+icon: "icons/Whiskey.png"
+tags: ["perishable",]
+{next}
+name: "Wine"
+description: ""
+icon: "icons/Wine.png"
+tags: ["perishable",]

@@ -1,0 +1,65 @@
+{next}
+name: "bronze"
+description: ""
+icon: "icons/bronze.png"
+tags: ["perishable",]
+{next}
+name: "copper"
+description: ""
+icon: "icons/copper.png"
+tags: ["perishable",]
+{next}
+name: "gem"
+description: ""
+icon: "icons/gem.png"
+tags: ["perishable",]
+{next}
+name: "gold"
+description: ""
+icon: "icons/gold.png"
+tags: ["perishable",]
+{next}
+name: "iron"
+description: ""
+icon: "icons/iron.png"
+tags: ["perishable",]
+{next}
+name: "lead"
+description: ""
+icon: "icons/lead.png"
+tags: ["perishable",]
+{next}
+name: "plank"
+description: ""
+icon: "icons/plank.png"
+tags: ["perishable",]
+{next}
+name: "ruby"
+description: ""
+icon: "icons/ruby.png"
+tags: ["perishable",]
+{next}
+name: "silver"
+description: ""
+icon: "icons/silver.png"
+tags: ["perishable",]
+{next}
+name: "steal"
+description: ""
+icon: "icons/steal.png"
+tags: ["perishable",]
+{next}
+name: "tin"
+description: ""
+icon: "icons/tin.png"
+tags: ["perishable",]
+{next}
+name: "topaz"
+description: ""
+icon: "icons/topaz.png"
+tags: ["perishable",]
+{next}
+name: "wood"
+description: ""
+icon: "icons/wood.png"
+tags: ["perishable",]

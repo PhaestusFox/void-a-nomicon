@@ -11,3 +11,4 @@ energy + air = pressure; 0
 pressure + stone = blood; 0
 blood + fire = steam; 0
 steam + time = water; 0
+stone + fire = lava; 0

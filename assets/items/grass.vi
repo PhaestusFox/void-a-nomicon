@@ -1,23 +1,23 @@
 name: "Mud"
 description: "Good for jumping in"
-icon: "icons/mud.png"
+icon: "../icons/mud.png"
 {next}
 name: "Grass"
 description: "Not ganja;\n atleast not yet {wink}"
-icon: "icons/grass.png"
+icon: "../icons/grass.png"
 {next}
 name: "Long Grass"
 description: "Just Like Minecraft;\n What do you mean thats not how you get long grass in Minecraft;"
-icon: "icons/long_grass.png"
+icon: "../icons/long_grass.png"
 {next}
 name: "Bone"
 description: "Look they sounded the same;"
-icon: "icons/bone.png"
+icon: "../icons/bone.png"
 {next}
 name: "Bone meal"
 description: "Ouch that hurt;"
-icon: "icons/bone_meal.png"
+icon: "../icons/bone_meal.png"
 {next}
 name: "Tall Grass"
 description: "Just Like Minecraft;\n you happy now? this makes no sense unless you give your grass time to grom {wink}"
-icon: "icons/tall_grass.png"
+icon: "../icons/tall_grass.png"
