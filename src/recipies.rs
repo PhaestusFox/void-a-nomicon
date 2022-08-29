@@ -84,11 +84,11 @@ mod test {
         let item2 = ItemID::from("App");
         let item3 = ItemID::from("DefaultPlugins");
         let item4 = ItemID::from("Totally a game");
-        recipies.load("./assets/recipies/meta.vr");
+        let _ = recipies.load("./assets/recipies/meta.vr");
         let res = recipies.combine(item1, item1);
         assert_eq!(res, Some(vec![item2]));
         let res = recipies.combine(item2, item1);
-        assert_eq!(res, Some(vec![item3]));
+        assert_eq!(res, Some(vec![item3, item2]));
         let res = recipies.combine(item2, item3);
         assert_eq!(res, Some(vec![item4]));
     }
