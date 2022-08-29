@@ -19,7 +19,19 @@ impl Default for UiConfigData {
 
 impl Default for UiConfig {
     fn default() -> Self {
-        let data = std::fs::read_to_string("./assets/ui.config").unwrap();
+        let data = if let Ok(str) = std::fs::read_to_string("./assets/ui.config") {str} else {
+            let f = UiConfigData::default();
+            return UiConfig {
+                frame_style: Style {
+                    size: Size { width: Val::Px(f.frame_size), height: Val::Px(f.frame_size) },
+                    ..Default::default()
+                }, icon_style: Style {
+                    size: Size { width: Val::Px(f.frame_size), height: Val::Px(f.frame_size) },
+                    margin: UiRect::all(Val::Auto),
+                    ..Default::default()
+                },
+            };
+        };
         if let Ok(data) = ron::from_str::<UiConfigData>(&data) {
             data.into()
         } else {

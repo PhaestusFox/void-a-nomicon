@@ -47,7 +47,12 @@ fn load_ui_icons(
     mut icons: ResMut<UiIcons>,
 ) {
     use std::fs;
-    let ui_config = fs::read_to_string("./assets/ui_icons.config").unwrap();
+    let ui_config = if let Ok(f) = fs::read_to_string("./assets/ui_icons.config") {f} else {
+        r#"item_frame: ui/frame_c2_01.png
+        tooltip_frame: ui/frame_c2_01.png
+        tooltip_line: ui/obj_06_01.png
+        tooltip_end: ui/obj_06_02.png"#.to_string()
+    };
     for line in ui_config.split('\n') {
         let mut line = line.split(':');
         let name = line.next();

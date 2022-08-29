@@ -12,6 +12,7 @@ mod sound;
 
 fn main() {
     App::new()
+        .init_resource::<MACHOC>()
         .add_plugins(DefaultPlugins)
         .add_plugin(bevy_editor_pls::prelude::EditorPlugin)
         .add_plugin(bevy::diagnostic::DiagnosticsPlugin)
@@ -58,5 +59,23 @@ fn spawn_test_item(
 ){
     if input.just_pressed(KeyCode::B) {
         events.send(item::ItemEvent::Spawn(item::ItemID::from("Bevy")))
+    }
+}
+
+const ASSETSFILE: &'static str = "./assets";
+
+struct MACHOC;
+
+impl FromWorld for MACHOC {
+    fn from_world(_: &mut World) -> Self {
+        mac_hoc();
+        MACHOC
+    }
+}
+
+fn mac_hoc() {
+    let path: std::path::PathBuf = ASSETSFILE.into();
+    if !path.exists() {
+        let _ = std::fs::create_dir(path);
     }
 }
