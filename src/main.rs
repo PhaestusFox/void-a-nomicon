@@ -3,7 +3,6 @@ use void_a_nomicon::prelude::*;
 
 fn main() {
     App::new()
-        .init_resource::<MACHOC>()
         .insert_resource(ImageSettings::default_nearest())
         .add_plugins(DefaultPlugins)
         .add_plugin(bevy_editor_pls::prelude::EditorPlugin)
@@ -48,23 +47,5 @@ fn spawn_test_item(
 ){
     if input.just_pressed(KeyCode::B) {
         events.send(ItemEvent::Spawn(ItemID::from("Bevy")))
-    }
-}
-
-const ASSETSFILE: &'static str = "./assets";
-
-struct MACHOC;
-
-impl FromWorld for MACHOC {
-    fn from_world(_: &mut World) -> Self {
-        mac_hoc();
-        MACHOC
-    }
-}
-
-fn mac_hoc() {
-    let path: std::path::PathBuf = ASSETSFILE.into();
-    if !path.exists() {
-        let _ = std::fs::create_dir(path);
     }
 }

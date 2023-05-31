@@ -30,7 +30,6 @@ fn load_recipies(
     for recipie in load_recipies_from_folder("./assets")
     {
         match recipie {
-            RecipieType::None => {},
             RecipieType::AddRecipie { item1, item2, makes, rank } => recipies.insert(item1, item2, makes, rank),
             RecipieType::AddTagRecipie { item, has, makes, rank } => {
                 if let Some(items) = items.with_tag(&has) {
@@ -330,7 +329,6 @@ fn combine(
 }
 
 enum RecipieType {
-    None,
     AddRecipie {
         item1: ItemID,
         item2: ItemID, 
